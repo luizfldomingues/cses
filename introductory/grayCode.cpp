@@ -1,27 +1,19 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-void pbin(int n, int size){
-  int i = size;
-  while(i){
-    cout << !((n & (1 << (i - 1))) == 0);
-    i--;
-  }
-  cout << endl;
-  return;
-}
-
-void rec(int answer, int n, int i, int dir){
-  answer = answer ^ (dir << (n - i));
-  if(i == n){
-    pbin(answer, n);
-    return;
-  }
-  rec(answer, n, i + 1, 0 ^ dir);
-  rec(answer, n, i + 1, 1 ^ dir);
-}
-
 int main(){
   int n; cin >> n;
-  rec(0, n, 0, 0);
+  vector<int> acc(n, 0);
+  for(int j = 0; j < n; j++){
+    acc[j] = 1 << (n - j - 1);
+  }
+  int twon = 1 << n;
+  for(int i = 0; i < twon; i++){
+    for(int j = 0; j < n; j++){
+      int p = (1 << (n - j - 1));
+      cout << (((p) + i & (p << 1)) && p);
+    }
+    cout << '\n';
+  }
+
 }
