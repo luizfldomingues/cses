@@ -2,76 +2,45 @@
 using namespace std;
 
 typedef pair<int, int> pii;
-typedef pair<vector<int>, pii> pvii;
-
-bool c_pvii(pvii a, pvii b){
-  return (a.first.size() > b.first.size()) || (a.first.size() == b.first.size() && a.second.second < b.second.second);
-}
 
 int main(){
-  int n; cin >> n;
-  int m; cin >> m;
-  vector<int> a(n);
-  vector<int> b(m);
-  int buff;
-  for(int i = 0; i < n; i++){
-    cin >> buff;
-    a[i] = buff;
-  }
-  for(int i = 0; i < m; i++){
-    cin >> buff;
-    b[i] = buff;
-  }
+  int n, m; cin >> n >> m;
+  int a[n], b[m];
+  for(int i = 0; i < n; i++) cin >> a[i];
+  for(int i = 0; i < m; i++) cin >> b[i];
 
-  vector<vector<pvii>> dp(n+1, vector<pvii>(m+1));
+  int dp[n+1][m+1];
 
-  for(int i = 0; i <= n; i++){
-    for(int j = 0; j <= m; j++){
-      dp[i][j] = {{}, {0, -1}};
-      if(i == 0 || j == 0) continue;
-      int new_digit = b[j-1];
-      vector<pvii> options = {dp[i-1][j], dp[i][j-1]};
-      sort(options.begin(), options.end(), c_pvii);
+  pii case_used[n+1][m+1];
 
-      // Case we include the new_digit in an already solved case
-      int optionsNconsider = (options[0].first.size() < options[1].first.size()) ? 1 : 2;
-      for(int optionN = 0;
-      optionN < optionsNconsider && dp[i][j].first.size() == 0;
-      optionN++){
-        pvii option = options[optionN];
-        if(j <= option.second.second) continue;
-        for(int k = option.second.first + 1; k < i; k++){
-          if(new_digit == a[k]){
-            dp[i][j].first = option.first;
-            dp[i][j].first.push_back(new_digit);
-            dp[i][j].second = {k, j};
-            break;
-          }
-        }
-      }
-      // Case we don't include the string and get the same answer for an already solved case
-      if(dp[i][j].first.size() == 0 && options[0].first.size() > 0){
-        dp[i][j].first = options[0].first;
-        dp[i][j].second = options[0].second;
-        continue;
-      }
-
-      // case the best option is to create a new subsequence
-      if(dp[i][j].first.size() == 0){
-        for(int k = 0; k < i; k++){
-          if(new_digit == a[k]){
-            dp[i][j].first.push_back(new_digit);
-            dp[i][j].second = {k, j};
-            break;
-          }
+  for(int i = n; i >= 0; i--){
+    for(int j = m; j >= 0; j--){
+      if(i == n || j == m){
+        dp[i][j] = 0;
+        case_used[i][j] = {-1, -1};
+      } 
+      else if(a[i] == b[j]){
+        dp[i][j] = dp[i+1][j+1] + 1;
+        case_used[i][j] = {i, j};
+      } else{
+        if(dp[i+1][j] > dp[i][j+1]){
+          dp[i][j] = dp[i+1][j]; 
+          case_used[i][j] = case_used[i+1][j];
+        } else{
+          dp[i][j] = dp[i][j+1];
+          case_used[i][j] = case_used[i][j+1];
         }
       }
     }
   }
 
-  cout << dp[n][m].first.size() << endl;
-  for(int i = 0; i < dp[n][m].first.size(); i++){
-    cout << dp[n][m].first[i] << ' ';
+  cout << dp[0][0] << endl;
+
+  pii c = case_used[0][0];
+  while(c.first != -1 && c.second != -1){
+    cout << a[c.first] << ' ';
+    c = case_used[c.first+1][c.second+1];
   }
   cout << endl;
+
 }
