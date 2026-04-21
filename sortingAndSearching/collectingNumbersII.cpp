@@ -1,24 +1,18 @@
 #include <bits/stdc++.h>
 using namespace std;
-
-typedef pair<int, int> pii;
-
+typedef vector<int> vi;
+ 
 int main(){
   int n, m; cin >> n >> m;
-  map<int, int> x;
-  int temp;
-  vector<int> pos(n, 0);
+  vi x(n + 1);
+  vi pos(n);
   for(int i = 0; i < n; i++){
     cin >> pos[i];
-    x.insert({pos[i], i});
+    x[pos[i]] = i;
   }
   int rounds = 1;
-  for(auto it = x.begin(); it != x.end(); it++){
-    auto next = x.find((*it).first + 1);
-    if(next == x.end()) break;
-    if((*it).second > (*next).second) rounds++;
-  }
-
+  for(int i = 1; i < n; i++) if(x[i] > x[i+1]) rounds++;
+ 
   for(int i = 0; i < m; i++){
     int xa, xb; cin >> xa >> xb;
     xa--; xb--;
@@ -26,10 +20,8 @@ int main(){
     int b = pos[xa];
     pos[xa] = a; // xa is the new position
     pos[xb] = b;
-    x.erase(a);
-    x.erase(b);
-    x.insert({a, xa});
-    x.insert({b, xb});
+    x[a] = xa;
+    x[b] = xb;
     if(abs(a - b) == 1){
       if(a < b){
         if(xa < xb) rounds--;
@@ -40,14 +32,17 @@ int main(){
       }
     }
     vector<vector<int>> changes {{a, xa,xb}, {b, xb, xa}}; // current value and new index
-    for(vector<int> c : changes){
-      if(c[0] > 1){
-        int pred = x[c[0] - 1];
-        if(xa != pred && xb != pred && ((pred < c[1]) != (pred < c[2]))) pred < c[1] ? rounds-- : rounds++;
+    for(int i = 0; i < 2; i++){
+      int c0 = changes[i][0];
+      int c1 = changes[i][1];
+      int c2 = changes[i][2];
+      if(c0 > 1){
+        int pred = x[c0 - 1];
+        if(pred != c2 && ((pred < c1) != (pred < c2))) pred < c1 ? rounds-- : rounds++;
       }
-      if(c[0] < n){
-        int suc = x[c[0] + 1];
-        if(xa != suc && xb != suc && ((suc < c[1]) != (suc < c[2]))) suc > c[1] ? rounds-- : rounds++;
+      if(c0 < n){
+        int suc = x[c0 + 1];
+        if(suc != c2 && ((suc < c1) != (suc < c2))) suc > c1 ? rounds-- : rounds++;
       }
     }
     cout << rounds << '\n';
