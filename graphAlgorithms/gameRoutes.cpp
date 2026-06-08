@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-//#define int long long
+#define int long long
 typedef long long ll;
 typedef vector<int> vi;
 typedef vector<vi> vvi;
@@ -12,25 +12,35 @@ typedef vector<vpii> vvpii;
 #define s second
 
 const int MOD = 1e9+7;
+const int INF = 1e15;
 
-int rec(int b, vi& nways, vvi& ptm){
-  if(b == 0) return 1;
-  if(nways[b] != -1) return nways[b];
-  nways[b] = 0;
-  for(int a : ptm[b]) nways[b] = (nways[b] + (rec(a, nways, ptm) % MOD)) % MOD;
-  return nways[b];
-}
 
-int main(){
+int32_t main(){
   int n, m;
   cin >> n >> m;
-  vvi points_to_me(n);
+  vvpii adj(n);
   for(int i = 0; i < m; i++){
-    int a, b;
-    cin >> a >> b;
+    int a, b, x;
+    cin >> a >> b >> x;
     a--; b--;
-    points_to_me[b].push_back(a);
+    adj[a].push_back({-x, b});
   }
-  vi nways(n, -1);
-  cout << rec(n-1, nways, points_to_me) % MOD << endl;
+  vi dist(n,INF);
+  dist[0] = 0;
+  for(int a = 0; a < n; a++){
+    for(auto [d, b] : adj[a]){
+      dist[b] = min(dist[b], dist[a] + d);
+    }
+  }
+  int olda = dist[n-1];
+  for(int a = 0; a < n; a++){
+    for(auto [d, b] : adj[a]){
+      dist[b] = min(dist[b], dist[a] + d);
+    }
+  }
+  if(dist[n-1] != olda){
+    printf("-1\n");
+    return 0;
+  }
+  printf("%lld\n", -dist[n-1]);
 }
